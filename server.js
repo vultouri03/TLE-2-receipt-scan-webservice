@@ -1,18 +1,21 @@
-var express = require('express');
-var app = express();
+import express from "express"
+import router from "./router.js";
+
+//creates a basic express app
+const app = express();
+
+//allows the use of json and urlencoded requests
+app.use(express.json());
+app.use(express.urlencoded({
+    extended: false
+}));
+
+//loads the routes from the /classify url
+app.use("/classify", router)
+
 const { createWorker } = require('tesseract.js');
 const fs = require('fs');
 const path = require('path');
-const bodyParser = require('body-parser');
-
-// Body-parser middleware to parse JSON and urlencoded request bodies
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-
-// Set app to listen to port 3000
-app.listen(3000, function () {
-    console.log('Example app listening on port 3000 !');
-});
 
 // Post a base64String decode it to image and read image
 app.post('/process-base64', (req, res) => {
@@ -35,3 +38,7 @@ app.post('/process-base64', (req, res) => {
         await fs.unlinkSync(tempImagePath);
     })();
 });
+
+//opens the app on port 8000
+app.listen("8000")
+
