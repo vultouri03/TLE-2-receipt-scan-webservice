@@ -1,4 +1,11 @@
 import express from "express";
+import { createWorker } from "tesseract.js";
+import path from 'path';
+import { fileURLToPath } from 'url';
+import * as fs from "fs"
+
+const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
+const __dirname = path.dirname(__filename); // get the name of the directory
 
 //creates a router which loads the routes
 const router = express.Router();
@@ -22,14 +29,32 @@ router.post("/", async(req, res)=> {
         "sauces": 0
     };
 
-
-    const image = req.body.image;
-
+    
 
     //checks if the image base 64 has been sent
     if (req.body.image) {
-        console.log("hello world")
-        console.log(atob(image));
+        const image = req.body.image;
+
+        const imageData = Buffer.from(image, 'base64');
+
+        // Save the image to a temporary file
+        const tempImagePath = path.join(__dirname, 'temp', 'temp_image.jpg');
+        fs.writeFileSync(tempImagePath, imageData);
+
+    // Read the image and set to text
+    (async () => {
+        const worker = await createWorker('eng');
+        const ret = await worker.recognize(tempImagePath);
+        console.log(ret.data.text);
+        await worker.terminate();
+
+        //todo add gpt to read this text
+
+
+        // Remove the temporary image file after reading it
+        await fs.unlinkSync(tempImagePath);
+
+    })();
     } else {
         //fills the array with dummy data in case the image hasn't been sent yet
         categories.dairy += 10;
