@@ -8,7 +8,9 @@ const __filename = fileURLToPath(import.meta.url); // get the resolved path to t
 const __dirname = path.dirname(__filename); // get the name of the directory
 
 let receiptList = [
-    
+    {
+        
+    }
 ]
 
 //creates a router which loads the routes
@@ -21,20 +23,34 @@ router.get("/", async(req, res) => {
     res.json("we are classefied")
 })
 
-router.post("/status", async(req,res) => {
+
+//post route for sending status callbacks
+router.post("/status", async(req, res) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-    console.log(receiptList)
-    
-    for(let i = 0; i < receiptList.length; i++) {
-        if (req.body.id === receiptList[i].receiptId) {
-            res.json(receiptList[i].status)
-        } else {
-            res.status(400).json()
-        }
-    }
 
-    
+    let reqFound = false
+    let reqNumber;
+
+    //compares the id that is send, and returns the status for that request
+    if(req.body.id){
+    for(let i = 0; i < receiptList.length; i++) {
+        //checks if the id is found
+        if (req.body.id === receiptList[i].receiptId) {
+            reqFound = true
+            reqNumber = i
+        } 
+        }
+        //sends back the id's status or none wether the id is found or not
+        if (reqFound) {
+            res.json(receiptList[reqNumber].status)
+        } else {
+            res.json("NONE")
+        }
+    } else {
+    //sends back an error if the request has no status code
+    res.json("NONE")
+}
 })
 
 //post requests creates an empty categories array and loads the data from the request so that it can be used with tesseract.js
@@ -51,15 +67,20 @@ router.post("/classify", async(req, res)=> {
         "sauces": 0
     };
 
-    console.log(req.body.id)
-
+    //creates a new status item
     if(req.body.id) {
         receiptList.push({"receiptId": req.body.id,
-    "status": "processing"})
+    "status": "PROCESSING"})
     }
 
     //checks if the image base 64 has been sent
     if (req.body.image) {
+        //sets the status text to classifying
+        for(let i = 0; i < receiptList.length; i++) {
+            if (req.body.id === receiptList[i].receiptId) {
+                receiptList[i].status = "CLASSIFYING"
+            }
+        }
         const image = req.body.image;
 
         const imageData = Buffer.from(image, 'base64');
@@ -87,8 +108,14 @@ router.post("/classify", async(req, res)=> {
         categories.dairy += 10;
     }
 
+    //sets the status text to success
+    for(let i = 0; i < receiptList.length; i++) {
+        if (req.body.id === receiptList[i].receiptId) {
+            receiptList[i].status = "SUCCESS"
+        }
+    }
 
-
+    //sends back the categories
     res.json(categories)
 
 })
