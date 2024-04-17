@@ -10,8 +10,11 @@ app.use(express.urlencoded({
     extended: false
 }));
 
+
+
 //loads the routes from the /classify url
 app.use("/", router)
+
 
 
 //opens the app on port 8000

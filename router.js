@@ -7,12 +7,34 @@ import * as fs from "fs"
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename); // get the name of the directory
 
+let receiptList = [
+    
+]
+
 //creates a router which loads the routes
 const router = express.Router();
+
+
 
 //the get route it sends back a check to show that the app is working
 router.get("/", async(req, res) => {
     res.json("we are classefied")
+})
+
+router.post("/status", async(req,res) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    console.log(receiptList)
+    
+    for(let i = 0; i < receiptList.length; i++) {
+        if (req.body.id === receiptList[i].receiptId) {
+            res.json(receiptList[i].status)
+        } else {
+            res.status(400).json()
+        }
+    }
+
+    
 })
 
 //post requests creates an empty categories array and loads the data from the request so that it can be used with tesseract.js
@@ -29,7 +51,12 @@ router.post("/classify", async(req, res)=> {
         "sauces": 0
     };
 
-    
+    console.log(req.body.id)
+
+    if(req.body.id) {
+        receiptList.push({"receiptId": req.body.id,
+    "status": "processing"})
+    }
 
     //checks if the image base 64 has been sent
     if (req.body.image) {
