@@ -11,15 +11,8 @@ app.use(express.urlencoded({
 }));
 
 //loads the routes from the /classify url
-app.use("/classify", router)
+app.use("/", router)
 
-
-
-
-// Post a base64String decode it to image and read image
-app.post('/process-base64', (req, res) => {
-    
-});
 
 //opens the app on port 8000
 app.listen("8000")
