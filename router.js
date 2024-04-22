@@ -26,9 +26,6 @@ router.get("/", async(req, res) => {
 
 //post route for sending status callbacks
 router.post("/status", async(req, res) => {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-
     let reqFound = false
     let reqNumber;
 
@@ -66,7 +63,7 @@ router.post("/classify", async(req, res)=> {
         "spices": 0,
         "sauces": 0
     };
-
+    console.log("hello world")
     //creates a new status item
     if(req.body.id) {
         receiptList.push({"receiptId": req.body.id,
