@@ -52,8 +52,6 @@ router.post("/status", async(req, res) => {
 
 //post requests creates an empty categories array and loads the data from the request so that it can be used with tesseract.js
 router.post("/classify", async(req, res)=> {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
     let response;
     let categories = {
         "dairy": 0,
