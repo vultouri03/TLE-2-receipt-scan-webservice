@@ -64,7 +64,7 @@ router.post("/classify", async(req, res)=> {
         "spices": 0,
         "sauces": 0
     };
-    console.log("hello world")
+    
     //creates a new status item
     if(req.body.id) {
         receiptList.push({"receiptId": req.body.id,
@@ -79,7 +79,11 @@ router.post("/classify", async(req, res)=> {
                 receiptList[i].status = "CLASSIFYING"
             }
         }
-        const image = req.body.image;
+        let image = req.body.image;
+
+        image = image.replace("data:image/gif;base64,", "")
+
+        console.log(image)
 
         const imageData = Buffer.from(image, 'base64');
 
@@ -89,8 +93,9 @@ router.post("/classify", async(req, res)=> {
 
     // Read the image and set to text
     (async () => {
+        
         const worker = await createWorker('eng');
-        const ret = await worker.recognize(tempImagePath);
+        const ret = await worker.recognize(imageData);
         console.log(ret.data.text);
         response = ret.data.text
         await worker.terminate();
