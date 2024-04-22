@@ -54,6 +54,7 @@ router.post("/status", async(req, res) => {
 router.post("/classify", async(req, res)=> {
     res.header("Access-Control-Allow-Origin", "*");
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    let response;
     let categories = {
         "dairy": 0,
         "meat": 0,
@@ -91,6 +92,7 @@ router.post("/classify", async(req, res)=> {
         const worker = await createWorker('eng');
         const ret = await worker.recognize(tempImagePath);
         console.log(ret.data.text);
+        response = ret.data.text
         await worker.terminate();
 
         //todo add gpt to read this text
@@ -113,7 +115,7 @@ router.post("/classify", async(req, res)=> {
     }
 
     //sends back the categories
-    res.json(categories)
+    res.json(response)
 
 })
 
