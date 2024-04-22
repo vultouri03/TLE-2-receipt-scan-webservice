@@ -81,9 +81,7 @@ router.post("/classify", async(req, res)=> {
         }
         let image = req.body.image;
 
-        image = image.replace("data:image/gif;base64,", "")
-
-        console.log(image)
+        image = image.replace("data:image/png;base64,", "")
 
         const imageData = Buffer.from(image, 'base64');
 
@@ -95,7 +93,7 @@ router.post("/classify", async(req, res)=> {
     (async () => {
         
         const worker = await createWorker('eng');
-        const ret = await worker.recognize(imageData);
+        const ret = await worker.recognize(tempImagePath);
         console.log(ret.data.text);
         response = ret.data.text
         await worker.terminate();
@@ -120,7 +118,7 @@ router.post("/classify", async(req, res)=> {
     }
 
     //sends back the categories
-    res.json(response)
+    res.json(categories)
 
 })
 
