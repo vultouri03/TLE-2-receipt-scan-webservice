@@ -6,7 +6,7 @@ import cors from "cors"
 const app = express();
 
 //allows the use of json and urlencoded requests
-app.use(express.json({limit: '50mb'}));
+app.use(express.json({limit: '25mb'}));
 app.use(express.urlencoded({
     extended: true
 }));
