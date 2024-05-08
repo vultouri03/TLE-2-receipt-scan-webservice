@@ -20,7 +20,7 @@ const router = express.Router();
 
 //the get route it sends back a check to show that the app is working
 router.get("/", async(req, res) => {
-    res.json("we are classefied")
+    res.json("we are classefied");
 })
 
 
