@@ -3,9 +3,35 @@ import { createWorker } from "tesseract.js";
 import path from 'path';
 import { fileURLToPath } from 'url';
 import * as fs from "fs"
+import { ChatOpenAI } from "@langchain/openai"
+import { HumanMessage, SystemMessage, AIMessage } from "@langchain/core/messages"
 
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename); // get the name of the directory
+
+
+const model = new ChatOpenAI({
+    temperature: 0.8,
+    maxRetries: 10,
+    azureOpenAIApiKey: process.env.AZURE_OPENAI_API_KEY,
+    azureOpenAIApiVersion: process.env.OPENAI_API_VERSION,
+    azureOpenAIApiInstanceName: process.env.INSTANCE_NAME,
+    azureOpenAIApiDeploymentName: process.env.ENGINE_NAME,
+})
+
+let categories = {
+    "dairy": 0,
+    "meat": 0,
+    "drinks": 0,
+    "vegetables": 0,
+    "wheats": 0,
+    "spices": 0,
+    "sauces": 0
+};
+
+const prompt = "Can you categorize these words in the following categories, dairy, meat, drinks, vegetables, wheats, spices, sauces:"
+const prompt2 = "please return the counted values like this :" + `${JSON.stringify(categories)}`
+
 
 let receiptList = [
     {
@@ -53,7 +79,7 @@ router.post("/status", async(req, res) => {
 //post requests creates an empty categories array and loads the data from the request so that it can be used with tesseract.js
 router.post("/classify", async(req, res)=> {
     let response;
-    let categories = {
+    categories = {
         "dairy": 0,
         "meat": 0,
         "drinks": 0,
@@ -90,17 +116,20 @@ router.post("/classify", async(req, res)=> {
     // Read the image and set to text
     (async () => {
         
-        const worker = await createWorker('eng');
+        const worker = await createWorker('nld');
         const ret = await worker.recognize(tempImagePath);
         console.log(ret.data.text);
         response = ret.data.text
         await worker.terminate();
 
         //todo add gpt to read this text
-
+        let categoryItems =await categorizeProducts(ret.data.text)
+        console.log(categoryItems.content);
+        res.json(JSON.parse(categoryItems.content))
 
         // Remove the temporary image file after reading it
         await fs.unlinkSync(tempImagePath);
+
 
     })();
     } else {
@@ -115,10 +144,11 @@ router.post("/classify", async(req, res)=> {
         }
     }
 
-    //sends back the categories
-    res.json(categories)
-
 })
+
+async function categorizeProducts(products) {
+    return await model.invoke(prompt + products + prompt2)
+}
 
 //exports the router
 export default router
