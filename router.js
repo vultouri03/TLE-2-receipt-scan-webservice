@@ -123,6 +123,11 @@ router.post("/classify", async(req, res)=> {
         await worker.terminate();
 
         //todo add gpt to read this text
+        for(let i = 0; i < receiptList.length; i++) {
+            if (req.body.id === receiptList[i].receiptId) {
+                receiptList[i].status = "CATEGORIZING"
+            }
+        }
         let categoryItems =await categorizeProducts(ret.data.text)
         console.log(categoryItems.content);
         res.json(JSON.parse(categoryItems.content))
