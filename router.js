@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import * as fs from "fs"
 import { ChatOpenAI } from "@langchain/openai"
 import { HumanMessage, SystemMessage, AIMessage } from "@langchain/core/messages"
+import { error } from "console";
 
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename); // get the name of the directory
@@ -19,18 +20,41 @@ const model = new ChatOpenAI({
     azureOpenAIApiDeploymentName: process.env.ENGINE_NAME,
 })
 
-let categories = {
-    "dairy": 0,
-    "meat": 0,
-    "drinks": 0,
-    "vegetables": 0,
-    "wheats": 0,
-    "spices": 0,
-    "sauces": 0
+let categories = {"categories": [
+    {
+        "name": "wheats",
+        "amount": 0
+    },
+    {
+        "name": "meat",
+        "amount": 0
+    },
+    {
+        "name": "drinks",
+        "amount": 0
+    },
+    {
+        "name": "spices",
+        "amount": 0
+    },
+    {
+        "name": "dairy",
+        "amount": 0
+    },
+    {
+        "name": "vegetables",
+        "amount": 0
+    },
+    {
+        "name": "sauces",
+        "amount": 0
+    }
+
+]
 };
 
-const prompt = "Can you categorize these words in the following categories, dairy, meat, drinks, vegetables, wheats, spices, sauces:"
-const prompt2 = "please return the counted values like this :" + `${JSON.stringify(categories)}`
+const prompt = "Can you categorize these words in the following categories, wheays, meat, drinks, spices, dairy, vegetables, sauces:"
+const prompt2 = "please only return the counted values like this :" + `${JSON.stringify(categories)}` + "don't give me an explanation why"
 
 
 let receiptList = [
@@ -130,7 +154,12 @@ router.post("/classify", async(req, res)=> {
         }
         let categoryItems =await categorizeProducts(ret.data.text)
         console.log(categoryItems.content);
-        res.json(JSON.parse(categoryItems.content))
+        try {response = JSON.parse(categoryItems.content)}
+
+        catch{
+            error()
+        }
+        res.json(response)
 
         // Remove the temporary image file after reading it
         await fs.unlinkSync(tempImagePath);
