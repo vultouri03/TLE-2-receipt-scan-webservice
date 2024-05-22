@@ -112,9 +112,15 @@ router.post("/classify", async(req, res)=> {
         "spices": 0,
         "sauces": 0
     };
-    
+    console.log(req.body.id)
     //creates a new status item
     if(req.body.id) {
+        for(let i = 0; i < receiptList.length; i++) {
+            if (req.body.id === receiptList[i].receiptId) {
+                receiptList.splice(i, i)
+                console.log(receiptList[i])
+            }
+        }
         receiptList.push({"receiptId": req.body.id,
     "status": "PROCESSING"})
     }
@@ -158,6 +164,11 @@ router.post("/classify", async(req, res)=> {
 
         catch{
             error()
+        }
+        for(let i = 0; i < receiptList.length; i++) {
+            if (req.body.id === receiptList[i].receiptId) {
+                receiptList[i].status = 'SUCCESS'
+            }
         }
         res.json(response)
 
