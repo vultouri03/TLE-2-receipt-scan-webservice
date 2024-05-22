@@ -160,16 +160,17 @@ router.post("/classify", async(req, res)=> {
         }
         let categoryItems =await categorizeProducts(ret.data.text)
         console.log(categoryItems.content);
-        try {response = JSON.parse(categoryItems.content)}
-
-        catch{
-            error()
-        }
         for(let i = 0; i < receiptList.length; i++) {
             if (req.body.id === receiptList[i].receiptId) {
                 receiptList[i].status = 'SUCCESS'
             }
         }
+        try {response = JSON.parse(categoryItems.content)}
+
+        catch{
+            error()
+        }
+        
         res.json(response)
 
         // Remove the temporary image file after reading it
@@ -181,14 +182,6 @@ router.post("/classify", async(req, res)=> {
         //fills the array with dummy data in case the image hasn't been sent yet
         categories.dairy += 10;
     }
-
-    //sets the status text to success
-    for(let i = 0; i < receiptList.length; i++) {
-        if (req.body.id === receiptList[i].receiptId) {
-            receiptList[i].status = "SUCCESS"
-        }
-    }
-
 })
 
 async function categorizeProducts(products) {
